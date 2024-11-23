@@ -1,0 +1,51 @@
+\documentclass{article}
+\usepackage{ctex}
+\usepackage{amssymb, amsmath}
+\usepackage[a4paper, scale=0.9]{geometry}
+\usepackage{ulem}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{xeCJKfntef}
+
+\setCJKmainfont{SimSun} [BoldFont=SimHei, ItalicFont=KaiTi]
+
+\newcommand{\choice}[5]{
+    #1
+    #2
+    #3
+    #4
+    #5
+
+    \vspace{!2}
+}
+
+\newcommand{\blank}{\uline{\qquad \qquad}}
+\newcommand{\cloze}[1]{
+    #1
+
+    \vspace{!3}
+}
+\newcommand{\question}[2]{
+    #1
+!5  #2
+}
+\newcommand{\useImage}[1]{
+    \includegraphics{./src/!0/!1/graphs/#1.pdf}
+}
+
+\title{高中数学精编（上海版） （第 $!0$ 章 第 $!1$ 节预览）}
+\begin{document}
+
+\maketitle
+
+spacing.choice=!2
+
+spacing.cloze=!3
+
+spacing.answerQuestion=!4
+
+cache=!6
+
+!7
+
+\end{document}

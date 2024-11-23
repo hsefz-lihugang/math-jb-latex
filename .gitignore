@@ -1,0 +1,6 @@
+math
+*.pdf
+*.aux
+*.log
+.vscode
+src/**/generated.tex
