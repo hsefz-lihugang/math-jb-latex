@@ -1,12 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "./utils/repo.cpp"
 #include "subcommands/help.cpp"
 #include "subcommands/preview.cpp"
+#include "subcommands/commit.cpp"
 #include "subcommands/subCommandNotFoundPrompt.cpp"
 #include "utils/trie.cpp"
 
 auto main(int argc, const char **argv) -> int {
+    if (!readRepoMeta()) return 0;
+
     TrieTree<void (*)(const char *, TrieTree<const char *> &)> subcommands;
     const char *subcommandString = argc == 1 ? "help" : argv[1];
 
@@ -14,6 +18,7 @@ auto main(int argc, const char **argv) -> int {
 
     registerHelpCommand(subcommands, arguments);
     registerPreviewCommand(subcommands, arguments);
+    registerCommitCommand(subcommands, arguments);
     registerSubCommandNotFoundError(subcommands, arguments);
 
     for (int i = 3 /* argv[0] is filename, argv[1] is subcommand, argv[2] is destination */; i < argc; i++) {

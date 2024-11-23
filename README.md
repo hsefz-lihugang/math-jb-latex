@@ -23,8 +23,8 @@
 1. 请确保您本地安装了 `C++` 编译器，推荐使用 `GNU/GCC`，对于使用 Windows 操作系统的用户，可以从这下载 MinGW 套件：[https://github.com/niXman/mingw-builds-binaries/releases/download/14.2.0-rt_v12-rev0/x86_64-14.2.0-release-posix-seh-ucrt-rt_v12-rev0.7z](https://github.com/niXman/mingw-builds-binaries/releases/download/14.2.0-rt_v12-rev0/x86_64-14.2.0-release-posix-seh-ucrt-rt_v12-rev0.7z)，解压后将文件夹内的 `bin`、`include`、`lib`、`share` 子文件夹添加到环境变量 `Path` 中即可。
 
 2. 请确保您本地的 `include` 文件夹中有 `cJSON` 和 `libcurl` 的库。
-3. 对于 Windows 用户，请执行 `g++ ./toolchain/main.cpp -o math -O2 -Wall -lws2_32` 以编译，编译成功后当前目录下应该会出现 `math.exe`
-4. 对于 Linux 用户，请执行 `g++ ./toolchain/main.cpp -o math -O2 -Wall` 以编译，编译成功后当前目录下应该会出现名为 `math` 的可执行文件
+3. 对于 Windows 用户，请执行 `g++ ./toolchain/main.cpp -o math -O2 -Wall -lcJSON -lws2_32` 以编译，编译成功后当前目录下应该会出现 `math.exe`
+4. 对于 Linux 用户，请执行 `g++ ./toolchain/main.cpp -o math -O2 -Wall -lcJSON` 以编译，编译成功后当前目录下应该会出现名为 `math` 的可执行文件
 5. 在编译或下载工具成功后，请执行 `./math init` 以初始化项目。（添加 Git 钩子， 生成 WorkSpace Meta）
 6. 如果你的命令行不支持颜色字符，请在编译时传入 `-DNO_COLOR` 选项
 
@@ -68,7 +68,7 @@
 
 如果题目中有图片，请建立文件夹：`src/$chapter/$section/graphs/` 并将图片的源代码按题目编号命名，如：`src/1/1/graphs/1.tex`，在题目中使用 `\useImage{1}` 即可调用图片，`\useImage` 宏由工具自动展开。如果你不是很擅长使用 `PGF/TikZ` 进行画图，也可以留空，交绘图的任务交给其他贡献者，在这种情况下，请使用 `\textcolor{red}{TODO}` 以标记。**书上的所有矢量图都应用 `PGF/TikZ` 进行重绘，请不要上传照片或用其他工具生成的图片，如果你的提交中有照片或其他图片，你的提交会被 Reject。**
 
-在完成一章的编写后，请使用 `./math commit $chapter.$section $message`，该操作会自动生成章节的元信息并提交到 GitHub 上，章节的状态会被标记成 `unverified`，需要等待其他贡献者审核章节是否出现错误。`$message$` 为提交信息，可以留空，最多为 $100$ 字。
+在完成一章的编写后，请使用 `./math commit $chapter.$section --message=$message`，该操作会自动生成章节的元信息并提交到 GitHub 上，章节的状态会被标记成 `unverified`，需要等待其他贡献者审核章节是否出现错误。`--message=$message$` 为提交信息，为可选选项，最多为 $100$ 字。
 
 #### 如何审核新章节
 

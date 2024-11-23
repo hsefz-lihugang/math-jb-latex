@@ -2,7 +2,8 @@ math
 *.pdf
 *.aux
 *.log
-.vscode
-src/**/generated.tex
 *.toc
 *.sha256
+.vscode
+src/**/generated.tex
+workspaceData/git.name
