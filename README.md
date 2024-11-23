@@ -64,7 +64,7 @@
 \end{enumerate}
 ```
 
-其中 `\choice`，`\cloze`，`\question` 宏由工具根据传入参数自动展开。
+其中 `\choice`，`\cloze`，`\question` 宏由工具根据传入参数自动展开。`\choice` 为选择题，第 1 个参数为题面，第 2 ~ 5 个参数为选项。`\cloze` 为填空题，`\question` 为解答题，第一个参数为题面，第二个参数为空行（请用 `\newpage` 或 `\vspace{\stretch{$size}}` 调整一页最多能放多少题。）
 
 如果题目中有图片，请建立文件夹：`src/$chapter/$section/graphs/` 并将图片的源代码按题目编号命名，如：`src/1/1/graphs/1.tex`，在题目中使用 `\useImage{1}` 即可调用图片，`\useImage` 宏由工具自动展开。如果你不是很擅长使用 `PGF/TikZ` 进行画图，也可以留空，交绘图的任务交给其他贡献者，在这种情况下，请使用 `\textcolor{red}{TODO}` 以标记。**书上的所有矢量图都应用 `PGF/TikZ` 进行重绘，请不要上传照片或用其他工具生成的图片，如果你的提交中有照片或其他图片，你的提交会被 Reject。**
 
