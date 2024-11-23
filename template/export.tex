@@ -1,0 +1,80 @@
+\documentclass{article}
+\usepackage{ctex}
+\usepackage{amssymb, amsmath}
+\usepackage[a4paper, scale=0.8]{geometry}
+\usepackage{ulem}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{xeCJKfntef}
+\usepackage{multiple-choice}
+\usepackage[colorlinks,linkcolor=red]{hyperref}
+\usepackage{fancyhdr}
+
+\setCJKmainfont{SimSun} [BoldFont=SimHei, ItalicFont=KaiTi]
+
+\newcommand{\choice}[5]{
+    #1
+    \begin{choices}
+        \choice #2
+        \choice #3
+        \choice #4
+        \choice #5
+    \end{choices}
+
+    \vspace{!2}
+}
+
+\newcommand{\blank}{\uline{\qquad \qquad}}
+\newcommand{\cloze}[1]{
+    #1
+
+    \vspace{!3}
+}
+\newcommand{\question}[2]{
+    #1
+!5  #2
+}
+\newcommand{\useImage}[1]{
+    \includegraphics{./src/!0/!1/graphs/#1.pdf}
+}
+
+\title{高中数学精编（上海版）}
+\author{第 $!0$ 章 \quad 第 $!1$ 节}
+\begin{document}
+
+\maketitle
+
+\newpage
+
+\pagestyle{fancy}
+\renewcommand{\footrulewidth}{0pt}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhead[L]{高中数学精编（上海版）}
+\fancyhead[R]{第 $!0$ 章 \quad 第 $!1$ 节}
+\fancyfoot[C]{\thepage}
+
+\begin{center}
+    \Large \textbf{前言}
+\end{center}
+
+此文件导出自 \url{https://github.com/lihugang/math-jb-latex}，该项目由民间维护，与出版社和原作者无关。此项目仅用于学习 \LaTeX 语法，请在下载后 $24$ 小时内删除。
+
+源代码采用 \href{https://github.com/lihugang/math-jb-latex/blob/master/LICENSE}{GPL-3.0} 协议，请遵循协议的约定。若您对该项目的代码有修改并用于非私人用途，请您将代码开源并且采用相同的许可证。若您将该项目的代码或成果进行分发，请您披露来源并采用相同的许可证。
+
+\vspace{0.5cm}
+
+以下是该项目的贡献者们，感谢他们的付出！
+
+!8
+
+\vspace{0.5cm}
+
+我们也欢迎您加入此项目，如果您发现程序的任何漏洞、Bug 、 PDF 内容的错误或其他任何建议，欢迎在 \url{https://github.com/lihugang/math-jb-latex/issues} 提出 Issue，我们将会尽快回复和解决问题。
+
+\newpage
+
+
+
+!7
+
+\end{document}

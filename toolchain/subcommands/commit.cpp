@@ -44,8 +44,8 @@ void registerCommitCommand(TrieTree<void (*)(const char *, TrieTree<const char *
 
         auto message = arguments.get("message", strlen("message"));
 
-        if (repoMeta.size() < targetChapter) repoMeta.resize(targetChapter);
-        if (repoMeta[targetChapter - 1].size() < targetSection) repoMeta[targetChapter - 1].resize(targetSection);
+        if (repoMeta.size() < (unsigned long)targetChapter) repoMeta.resize(targetChapter);
+        if (repoMeta[targetChapter - 1].size() < (unsigned long)targetSection) repoMeta[targetChapter - 1].resize(targetSection);
 
         system("git pull");
         system("git config user.name>./workspaceData/git.name");

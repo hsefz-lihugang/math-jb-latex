@@ -3,7 +3,9 @@ math
 *.aux
 *.log
 *.toc
+*.out
 *.sha256
+*.synctex.gz
 .vscode
 src/**/generated.tex
 workspaceData/git.name

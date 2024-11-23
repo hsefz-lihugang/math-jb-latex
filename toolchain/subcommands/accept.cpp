@@ -41,7 +41,7 @@ void registerAcceptCommand(TrieTree<void (*)(const char *, TrieTree<const char *
                          USE_COLOR(FCOLOR_YELLOW), targetSection, USE_COLOR(FCOLOR_WHITE))
                  .c_str());
 
-        if (repoMeta.size() < targetChapter || targetChapter == 0 || targetSection == 0 || repoMeta[targetChapter - 1].size() < targetSection) {
+        if (repoMeta.size() < (unsigned long)targetChapter || targetChapter == 0 || targetSection == 0 || repoMeta[targetChapter - 1].size() < (unsigned long)targetSection) {
             puts(std::format("{}Target Chapter {}{}{}, Section {}{}{} is not existed.{}", USE_COLOR(FCOLOR_RED),
                              USE_COLOR(FCOLOR_GREEN), targetChapter, USE_COLOR(FCOLOR_RED),
                              USE_COLOR(FCOLOR_GREEN), targetSection, USE_COLOR(FCOLOR_RED),

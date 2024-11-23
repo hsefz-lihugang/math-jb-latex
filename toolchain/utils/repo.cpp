@@ -37,7 +37,7 @@ auto readRepoMeta() -> bool {
     auto metaFileLength = ftell(metaFileFp);
     fseek(metaFileFp, 0, SEEK_SET);
 
-    auto metaFile = (char *)malloc(sizeof(char) * metaFileLength);
+    auto metaFile = (char *)malloc(sizeof(char) * (metaFileLength + 10));
 
     fread(metaFile, 1, metaFileLength, metaFileFp);
     metaFile[metaFileLength] = '\0';

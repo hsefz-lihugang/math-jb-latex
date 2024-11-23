@@ -105,7 +105,7 @@ auto compileGraph(int chapter, int section, bool useCache = true) {
     return true;
 }
 
-auto compileSingleFile(int chapter, int section, bool useCache = true, bool isPreview = false, const char *choiceSpacing = "0pt", const char *clozeSpacing = "0pt", bool questionSpacing = true) -> bool {
+auto compileSingleFile(int chapter, int section, bool useCache = true, bool isPreview = false, const char *choiceSpacing = "0pt", const char *clozeSpacing = "0pt", bool questionSpacing = true, const char *contributorListTex = "") -> bool {
     auto startTime = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
     const char *targetType = isPreview ? "preview" : "export";
 
@@ -139,6 +139,8 @@ auto compileSingleFile(int chapter, int section, bool useCache = true, bool isPr
     fclose(mainTexFilePtr);
 
     templateArguments.push_back(mainTexFileContent);
+
+    templateArguments.push_back(contributorListTex);
 
     auto content = loadTemplate(targetType, templateArguments);
 
@@ -213,7 +215,7 @@ auto compileSingleFile(int chapter, int section, bool useCache = true, bool isPr
     return true;
 }
 
-auto compileChapter(int chapter, bool useCache = true, bool isPreview = false, const char *choiceSpacing = "0pt", const char *clozeSpacing = "0pt", bool questionSpacing = true) -> bool {
+auto compileChapter(int chapter, bool useCache = true, bool isPreview = false, const char *choiceSpacing = "0pt", const char *clozeSpacing = "0pt", bool questionSpacing = true, const char *contributorListTex = "") -> bool {
     auto startTime = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
     const char *targetType = isPreview ? "chapterPreview" : "chapterExport";
 
@@ -239,12 +241,15 @@ auto compileChapter(int chapter, bool useCache = true, bool isPreview = false, c
     for (int i = 1; i <= countOfSections; i++)
         if (!compileGraph(chapter, i, useCache)) return false;
 
-    auto includeStatements = (char *)malloc(sizeof(char) * (strlen("\\newpage\n\\section{Section 1000}\n\\newcommand{\\useImage}[1]{\\includegraphics{./src/!0/1000/graphs/#1.pdf}}\n\\input{./src/1000/1000/main.tex}\n") * countOfSections));
+    auto includeStatements = (char *)malloc(sizeof(char) * (strlen("\\newpage\n\\section{Section 1000}\n\\newcommand{\\useImage}[1]{\\includegraphics{./src/!0/1000/graphs/#1.pdf}}\n\\input{./src/1000/1000/main.tex}\\fancyhead[R]{Chapter 1000 Section 1000}\n") * countOfSections));
 
     size_t includeStatementsSize = 0;
 
     for (int i = 1; i <= countOfSections; i++)
-        includeStatementsSize += sprintf(includeStatements + includeStatementsSize, "\\newpage\n\\section{Section %d}\n\\newcommand{\\useImage}[1]{\\includegraphics{./src/%d/%d/graphs/#1.pdf}}\n\\input{./src/%d/%d/main.tex}\n", i, chapter, i, chapter, i);
+        if (isPreview)
+            includeStatementsSize += sprintf(includeStatements + includeStatementsSize, "\\newpage\n\\section{Section %d}\n\\newcommand{\\useImage}[1]{\\includegraphics{./src/%d/%d/graphs/#1.pdf}}\n\\input{./src/%d/%d/main.tex}\n", i, chapter, i, chapter, i);
+        else
+            includeStatementsSize += sprintf(includeStatements + includeStatementsSize, "\\newpage\n\\fancyhead[R]{第 %d 章 \\quad 第 %d 节}\n\\section{第 %d 节}\n\\newcommand{\\useImage}[1]{\\includegraphics{./src/%d/%d/graphs/#1.pdf}}\n\\input{./src/%d/%d/main.tex}\n", chapter, i, i, chapter, i, chapter, i);
 
     std::vector<const char *> templateArguments;
 
@@ -257,6 +262,7 @@ auto compileChapter(int chapter, bool useCache = true, bool isPreview = false, c
     templateArguments.push_back(questionSpacing ? "" : "% ");  // LaTeX comments
     templateArguments.push_back(useCache ? "Enabled" : "Disabled");
     templateArguments.push_back(includeStatements);
+    templateArguments.push_back(contributorListTex);
 
     auto content = loadTemplate(targetType, templateArguments);
     free(chapterString);
@@ -299,6 +305,131 @@ auto compileChapter(int chapter, bool useCache = true, bool isPreview = false, c
     } else {
         puts(std::format("{}Compile Failed: {}./src/{}/generated.tex{}", USE_COLOR(FCOLOR_RED), USE_COLOR(FCOLOR_YELLOW), chapter, USE_COLOR(FCOLOR_WHITE)).c_str());
         remove(std::format("./result/{}.{}.pdf", chapter, targetType).c_str());
+        return false;
+    }
+    return true;
+}
+
+auto compileFullFile(const char *choiceSpacing = "0pt", const char *clozeSpacing = "0pt", bool questionSpacing = true, const char *contributorListTex = "") -> bool {
+    auto startTime = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+    const char *targetType = "full";
+
+    int countOfChapters = 0;
+    auto sourceDirectoryPtr = opendir("./src");
+    if (!sourceDirectoryPtr) {
+        puts(std::format("{}Cannot open directory: {}./src/{}", USE_COLOR(FCOLOR_RED), USE_COLOR(FCOLOR_YELLOW), USE_COLOR(FCOLOR_WHITE)).c_str());
+        return false;
+    }
+
+    struct dirent *sourceDirectoryMetaPtr;
+
+    while ((sourceDirectoryMetaPtr = readdir(sourceDirectoryPtr)) != NULL) {
+        if (isalnum(sourceDirectoryMetaPtr->d_name[0]))
+            countOfChapters = std::max(countOfChapters, atoi(sourceDirectoryMetaPtr->d_name));
+    }
+
+    closedir(sourceDirectoryPtr);
+
+    puts(std::format("{}{} {}chapter{} {} scanned.{}", USE_COLOR(FCOLOR_GREEN), countOfChapters, USE_COLOR(FCOLOR_CYAN), countOfChapters < 2 ? "" : "s", countOfChapters < 2 ? "was" : "were", USE_COLOR(FCOLOR_WHITE)).c_str());
+
+    std::string includeTex = "";
+
+    for (int chapter = 1; chapter <= countOfChapters; chapter++) {
+        int countOfSections = 0;
+        auto chapterDirectoryPtr = opendir(std::format("./src/{}", chapter).c_str());
+
+        if (!chapterDirectoryPtr) {
+            puts(std::format("{}Cannot open directory: {}./src/{}/{}", USE_COLOR(FCOLOR_RED), USE_COLOR(FCOLOR_YELLOW), chapter, USE_COLOR(FCOLOR_WHITE)).c_str());
+            return false;
+        }
+
+        struct dirent *chapterDirectoryMetaPtr;
+
+        while ((chapterDirectoryMetaPtr = readdir(chapterDirectoryPtr)) != NULL) {
+            if (isalnum(chapterDirectoryMetaPtr->d_name[0]))  // we assume a file started with number is a directory, for d_type is not in POSIX standard and MinGw on Windows does not contain it.
+                countOfSections = std::max(countOfSections, atoi(chapterDirectoryMetaPtr->d_name));
+        }
+
+        closedir(chapterDirectoryPtr);
+
+        puts(std::format("{}[Chapter {}{}{}]{} {}section{} {} scanned.{}", USE_COLOR(FCOLOR_GREEN),
+                         USE_COLOR(FCOLOR_CYAN), chapter, USE_COLOR(FCOLOR_GREEN),
+                         countOfSections, USE_COLOR(FCOLOR_CYAN), countOfSections < 2 ? "" : "s", countOfSections < 2 ? "was" : "were", USE_COLOR(FCOLOR_WHITE))
+                 .c_str());
+
+        for (int i = 1; i <= countOfSections; i++)
+            if (!compileGraph(chapter, i, false)) return false;
+        for (int section = 1; section <= countOfSections; section++) {
+            includeTex.append("\\newpage\n");
+            includeTex.append("\\fancyhead[R]{");
+            includeTex.append(std::format("第 {} 章 \\quad 第 {} 节", chapter, section));
+            includeTex.append("}\n");
+
+            if (section == 1) {
+                includeTex.append("\\section{");
+                includeTex.append(std::format("第 {} 章", chapter));
+                includeTex.append("}\n");
+            }
+
+            includeTex.append("\\subsection{");
+            includeTex.append(std::format("第 {} 节", section));
+            includeTex.append("}\n");
+            includeTex.append("\\newcommand{\\useImage}[1]{\\includegraphics{");
+            includeTex.append(std::format("./src/{}/{}/graphs/#1.pdf", chapter, section));
+            includeTex.append("}}\n");
+            includeTex.append("\\input{");
+            includeTex.append(std::format("./src/{}/{}/main.tex", chapter, section));
+            includeTex.append("}\n");
+        }
+    }
+
+    std::vector<const char *> templateArguments;
+
+    templateArguments.push_back(choiceSpacing);
+    templateArguments.push_back(clozeSpacing);
+    templateArguments.push_back(questionSpacing ? "" : "% ");
+    templateArguments.push_back(contributorListTex);
+    templateArguments.push_back(includeTex.c_str());
+
+    auto content = loadTemplate(targetType, templateArguments);
+
+    if (content == NULL) {
+        puts(std::format("{}Cannot open template: {}./template/{}.tex{}", USE_COLOR(FCOLOR_RED), USE_COLOR(FCOLOR_YELLOW), targetType, USE_COLOR(FCOLOR_WHITE)).c_str());
+        return false;
+    }
+    auto contentLength = strlen(content);
+
+    FILE *generatedFilePtr = fopen("./src/generated.tex", "w");
+
+    if (generatedFilePtr == NULL) {
+        puts(std::format("{}Cannot write to: {}./src/generated.tex{}", USE_COLOR(FCOLOR_RED), USE_COLOR(FCOLOR_YELLOW), USE_COLOR(FCOLOR_WHITE)).c_str());
+        free(content);
+        return false;
+    }
+
+    fwrite(content, 1, contentLength, generatedFilePtr);
+    fclose(generatedFilePtr);
+    free(content);
+
+    puts(std::format("{}Compiling {}./src/generated.tex{}", USE_COLOR(FCOLOR_CYAN), USE_COLOR(FCOLOR_YELLOW), USE_COLOR(FCOLOR_WHITE)).c_str());
+
+    system("xelatex --output-directory=./src ./src/generated.tex && xelatex --output-directory=./src/ ./src/generated.tex");
+
+    FILE *outputFilePtr = fopen("./src/generated.pdf", "r");
+    if (outputFilePtr) {
+        puts(std::format("{}Compile Succeeded: {}./src/generated.tex{}", USE_COLOR(FCOLOR_GREEN), USE_COLOR(FCOLOR_YELLOW), USE_COLOR(FCOLOR_WHITE)).c_str());
+        fclose(outputFilePtr);
+
+        rename(
+            "./src/generated.pdf",
+            "./result/精编.pdf");
+
+        auto endTime = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+
+        puts(std::format("{}Compile Task was finished. Taken time: {}{:.2f} seconds{}. Please go {}./result/精编.pdf{} to see your file.{}", USE_COLOR(FCOLOR_GREEN), USE_COLOR(FCOLOR_CYAN), (float)(endTime - startTime) / 1000, USE_COLOR(FCOLOR_GREEN), USE_COLOR(FCOLOR_YELLOW), USE_COLOR(FCOLOR_GREEN), USE_COLOR(FCOLOR_WHITE)).c_str());
+    } else {
+        puts(std::format("{}Compile Failed: {}./src/generated.tex{}", USE_COLOR(FCOLOR_RED), USE_COLOR(FCOLOR_YELLOW), USE_COLOR(FCOLOR_WHITE)).c_str());
+        remove("./result/精编.pdf");
         return false;
     }
     return true;
