@@ -18,15 +18,14 @@
 
 如果你并不擅长 $\LaTeX$ 但又希望对本项目作出贡献，可以参考：[https://oi-wiki.org/tools/latex/](https://oi-wiki.org/tools/latex/#%E5%85%AC%E5%BC%8F)，我们并不推荐使用 `TexLive` 自带的编辑器 `TexWorks`，推荐使用 `vscode` + `latex-workshop` 插件或 `vim`.
 
-#### 如何初始化项目
+#### 如何构建工具
 
 1. 请确保您本地安装了 `C++` 编译器，推荐使用 `GNU/GCC`，对于使用 Windows 操作系统的用户，可以从这下载 MinGW 套件：[https://github.com/niXman/mingw-builds-binaries/releases/download/14.2.0-rt_v12-rev0/x86_64-14.2.0-release-posix-seh-ucrt-rt_v12-rev0.7z](https://github.com/niXman/mingw-builds-binaries/releases/download/14.2.0-rt_v12-rev0/x86_64-14.2.0-release-posix-seh-ucrt-rt_v12-rev0.7z)，解压后将文件夹内的 `bin`、`include`、`lib`、`share` 子文件夹添加到环境变量 `Path` 中即可。
 
 2. 请确保您本地的 `include` 文件夹中有 `cJSON` 和 `libcurl` 的库。
-3. 对于 Windows 用户，请执行 `g++ ./toolchain/main.cpp -o math -O2 -Wall -lcJSON -lws2_32` 以编译，编译成功后当前目录下应该会出现 `math.exe`
-4. 对于 Linux 用户，请执行 `g++ ./toolchain/main.cpp -o math -O2 -Wall -lcJSON` 以编译，编译成功后当前目录下应该会出现名为 `math` 的可执行文件
-5. 在编译或下载工具成功后，请执行 `./math init` 以初始化项目。（添加 Git 钩子， 生成 WorkSpace Meta）
-6. 如果你的命令行不支持颜色字符，请在编译时传入 `-DNO_COLOR` 选项
+3. 对于 Windows 用户，请执行 `g++ ./toolchain/main.cpp -o math -std=c++20 -O2 -Wall -lcJSON -lcurl -lws2_32` 以编译，编译成功后当前目录下应该会出现 `math.exe`
+4. 对于 Linux 用户，请执行 `g++ ./toolchain/main.cpp -o math -std=c++20 -O2 -Wall -lcJSON -lcurl` 以编译，编译成功后当前目录下应该会出现名为 `math` 的可执行文件
+5. 如果你的命令行不支持颜色字符，请在编译时传入 `-DNO_COLOR` 选项
 
 #### 如何导出 PDF
 
