@@ -4,3 +4,5 @@ math
 *.log
 .vscode
 src/**/generated.tex
+*.toc
+*.sha256

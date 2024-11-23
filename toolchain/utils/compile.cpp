@@ -228,7 +228,7 @@ auto compileChapter(int chapter, bool useCache = true, bool isPreview = false, c
     struct dirent *chapterDirectoryMetaPtr;
 
     while ((chapterDirectoryMetaPtr = readdir(chapterDirectoryPtr)) != NULL) {
-        if (chapterDirectoryMetaPtr->d_type == 4)  // directory
+        if (isalnum(chapterDirectoryMetaPtr->d_name[0]))  // we assume a file started with number is a directory, for d_type is not in POSIX standard and MinGw on Windows does not contain it.
             countOfSections = std::max(countOfSections, atoi(chapterDirectoryMetaPtr->d_name));
     }
 
