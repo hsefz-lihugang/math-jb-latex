@@ -2,9 +2,10 @@
 #include <string.h>
 
 #include "./utils/repo.cpp"
+#include "subcommands/accept.cpp"
+#include "subcommands/commit.cpp"
 #include "subcommands/help.cpp"
 #include "subcommands/preview.cpp"
-#include "subcommands/commit.cpp"
 #include "subcommands/subCommandNotFoundPrompt.cpp"
 #include "utils/trie.cpp"
 
@@ -19,6 +20,7 @@ auto main(int argc, const char **argv) -> int {
     registerHelpCommand(subcommands, arguments);
     registerPreviewCommand(subcommands, arguments);
     registerCommitCommand(subcommands, arguments);
+    registerAcceptCommand(subcommands, arguments);
     registerSubCommandNotFoundError(subcommands, arguments);
 
     for (int i = 3 /* argv[0] is filename, argv[1] is subcommand, argv[2] is destination */; i < argc; i++) {
