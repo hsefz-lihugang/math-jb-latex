@@ -72,7 +72,7 @@
 
 #### 如何审核新章节
 
-执行：`./math verify $chapter.$section` 然后在 `result` 文件夹中查看 PDF 即可。
+执行：`./math preview $chapter.$section` 然后在 `result` 文件夹中查看 PDF 即可。
 
 如果代码无误，请执行：`./math accept $chapter.$section`。如果有误，请帮忙改正并重新执行 `./math commit $chapter.$section $message`，或是在 GitHub 上发出 Issue 等待其他贡献者修正。
 
