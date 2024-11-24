@@ -14,6 +14,7 @@
 
 #include "../macros/color.h"
 #include "../utils/itoa.cpp"
+#include "../utils/repo.cpp"
 
 auto loadTemplate(const char *templateName, std::vector<const char *> &arguments) -> char * {
     FILE *templateFilePtr = fopen(std::format("./template/{}.tex", templateName).c_str(), "r");
@@ -108,6 +109,15 @@ auto compileGraph(int chapter, int section, bool useCache = true) {
 auto compileSingleFile(int chapter, int section, bool useCache = true, bool isPreview = false, const char *choiceSpacing = "0pt", const char *clozeSpacing = "0pt", bool questionSpacing = true, const char *contributorListTex = "") -> bool {
     auto startTime = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()).time_since_epoch().count();
     const char *targetType = isPreview ? "preview" : "export";
+
+    if (!isPreview && !checkSectionVerified(chapter, section)) {
+        puts(std::format("{}Cannot export: {}Chapter {}{}{} Section {}{}{}, because it hasn't been verified.{}", USE_COLOR(FCOLOR_RED), USE_COLOR(FCOLOR_YELLOW),
+                         USE_COLOR(FCOLOR_GREEN), chapter, USE_COLOR(FCOLOR_YELLOW),
+                         USE_COLOR(FCOLOR_GREEN), section, USE_COLOR(FCOLOR_RED),
+                         USE_COLOR(FCOLOR_WHITE))
+                 .c_str());
+        return false;
+    }
 
     auto compileGraphState = compileGraph(chapter, section, useCache);
     if (!compileGraphState) return false;
@@ -239,16 +249,25 @@ auto compileChapter(int chapter, bool useCache = true, bool isPreview = false, c
     puts(std::format("{}{} {}section{} {} scanned.{}", USE_COLOR(FCOLOR_GREEN), countOfSections, USE_COLOR(FCOLOR_CYAN), countOfSections < 2 ? "" : "s", countOfSections < 2 ? "was" : "were", USE_COLOR(FCOLOR_WHITE)).c_str());
 
     for (int i = 1; i <= countOfSections; i++)
-        if (!compileGraph(chapter, i, useCache)) return false;
+        if (isPreview || checkSectionVerified(chapter, i))
+            if (!compileGraph(chapter, i, useCache)) return false;
 
     auto includeStatements = (char *)malloc(sizeof(char) * (strlen("\\newpage\n\\section{Section 1000}\n\\newcommand{\\useImage}[1]{\\includegraphics{./src/!0/1000/graphs/#1.pdf}}\n\\input{./src/1000/1000/main.tex}\\fancyhead[R]{Chapter 1000 Section 1000}\n") * countOfSections));
+    includeStatements[0] = '\0';
 
     size_t includeStatementsSize = 0;
 
     for (int i = 1; i <= countOfSections; i++)
         if (isPreview)
             includeStatementsSize += sprintf(includeStatements + includeStatementsSize, "\\newpage\n\\section{Section %d}\n\\newcommand{\\useImage}[1]{\\includegraphics{./src/%d/%d/graphs/#1.pdf}}\n\\input{./src/%d/%d/main.tex}\n", i, chapter, i, chapter, i);
-        else
+        else if (!checkSectionVerified(chapter, i)) {
+            puts(std::format("{}Cannot export: {}Chapter {}{}{} Section {}{}{}, because it hasn't been verified.{}", USE_COLOR(FCOLOR_RED), USE_COLOR(FCOLOR_YELLOW),
+                             USE_COLOR(FCOLOR_GREEN), chapter, USE_COLOR(FCOLOR_YELLOW),
+                             USE_COLOR(FCOLOR_GREEN), i, USE_COLOR(FCOLOR_RED),
+                             USE_COLOR(FCOLOR_WHITE))
+                     .c_str());
+            continue;
+        } else
             includeStatementsSize += sprintf(includeStatements + includeStatementsSize, "\\newpage\n\\fancyhead[R]{第 %d 章 \\quad 第 %d 节}\n\\section{第 %d 节}\n\\newcommand{\\useImage}[1]{\\includegraphics{./src/%d/%d/graphs/#1.pdf}}\n\\input{./src/%d/%d/main.tex}\n", chapter, i, i, chapter, i, chapter, i);
 
     std::vector<const char *> templateArguments;
@@ -358,8 +377,17 @@ auto compileFullFile(const char *choiceSpacing = "0pt", const char *clozeSpacing
                  .c_str());
 
         for (int i = 1; i <= countOfSections; i++)
-            if (!compileGraph(chapter, i, false)) return false;
+            if (checkSectionVerified(chapter, i))
+                if (!compileGraph(chapter, i, false)) return false;
         for (int section = 1; section <= countOfSections; section++) {
+            if (!checkSectionVerified(chapter, section)) {
+                puts(std::format("{}Cannot export: {}Chapter {}{}{} Section {}{}{}, because it hasn't been verified.{}", USE_COLOR(FCOLOR_RED), USE_COLOR(FCOLOR_YELLOW),
+                                 USE_COLOR(FCOLOR_GREEN), chapter, USE_COLOR(FCOLOR_YELLOW),
+                                 USE_COLOR(FCOLOR_GREEN), section, USE_COLOR(FCOLOR_RED),
+                                 USE_COLOR(FCOLOR_WHITE))
+                         .c_str());
+                continue;
+            }
             includeTex.append("\\newpage\n");
             includeTex.append("\\fancyhead[R]{");
             includeTex.append(std::format("第 {} 章 \\quad 第 {} 节", chapter, section));

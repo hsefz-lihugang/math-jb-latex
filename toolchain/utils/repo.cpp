@@ -110,3 +110,8 @@ auto saveRepoMeta() -> void {
 
     fclose(metaFileFp);
 }
+
+auto checkSectionVerified(int chapter, int section) -> bool {
+    if ((size_t)chapter >= repoMeta.size() || (size_t)section >= repoMeta[chapter - 1].size()) return false;
+    return repoMeta[chapter - 1][section - 1].status == verified;
+}
